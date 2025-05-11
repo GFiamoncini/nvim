@@ -1,10 +1,11 @@
 # My personal config for Nvim and Golang lint and LSP Server
 
 ## Instalation Nvim
-
+````bash
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 sudo rm -rf /opt/nvim
 sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+````
 
 ### Note: Some folders have my username, due to configuration criteria in Linux, I recommend changing it to your username for correct organization and operation.
 
