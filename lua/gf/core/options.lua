@@ -38,3 +38,10 @@ opt.splitbelow = true -- split horizontal window to the bottom
 
 -- turn off swapfile
 opt.swapfile = false
+
+--Folding (necessário para region-folding.nvim funcionar)
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+opt.foldlevel = 99         -- abre todos os folds por padrão
+opt.foldlevelstart = 99    -- idem
+opt.foldenable = true      -- habilita folding
