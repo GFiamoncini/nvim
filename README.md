@@ -19,6 +19,7 @@ sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
   - Colorscheme
   - Comment
   - Dressing
+  - Folding
   - Formatting
   - Indent-bankline
   - Linting
