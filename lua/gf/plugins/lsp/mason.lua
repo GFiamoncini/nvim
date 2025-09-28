@@ -39,16 +39,17 @@ return {
     if mason_lspconfig.setup_handlers then
       mason_lspconfig.setup_handlers({
         function(server_name)
-          require("lspconfig")[server_name].setup({
+          vim.lsp.config(server_name, {
             capabilities = require("cmp_nvim_lsp").default_capabilities(),
           })
+vim.lsp.enable(server_name)
         end,
 
         ["gopls"] = function()
-          require("lspconfig").gopls.setup({
+          vim.lsp.config('gopls', {
             cmd = { "gopls" },
             filetypes = { "go", "gomod", "gowork", "gotmpl" },
-            root_dir = require("lspconfig").util.root_pattern("go.work", "go.mod", ".git"),
+            root_dir = vim.lsp.util.root_pattern("go.work", "go.mod", ".git"),
             capabilities = require("cmp_nvim_lsp").default_capabilities(),
             settings = {
               gopls = {
@@ -60,6 +61,7 @@ return {
               },
             },
           })
+vim.lsp.enable('gopls')
         end,
       })
     else

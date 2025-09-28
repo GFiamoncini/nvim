@@ -1,6 +1,5 @@
 return {
   "hrsh7th/nvim-cmp",
-  --event = "InsertEnter",
   dependencies = {
     "hrsh7th/cmp-buffer", -- source for text in buffer
     "hrsh7th/cmp-path", -- source for file system paths
@@ -22,7 +21,9 @@ return {
 
     -- Enable LSP capabilities for autocompletion
     local cmp_nvim_lsp = require("cmp_nvim_lsp")
-    local capabilities = cmp_nvim_lsp.default_capabilities(vim.lsp.protocol.make_client_capabilities())
+    local capabilities = cmp_nvim_lsp.default_capabilities(
+      vim.lsp.protocol.make_client_capabilities()
+    )
 
     -- Load snippets from VSCode
     require("luasnip.loaders.from_vscode").lazy_load()
@@ -59,9 +60,8 @@ return {
       },
     })
 
-    -- Attach LSP capabilities to the Go language server (gopls)
-    local lspconfig = require("lspconfig")
-    lspconfig.gopls.setup({
+    -- Configure gopls with new API
+    vim.lsp.config("gopls", {
       capabilities = capabilities,
       on_attach = function(client, bufnr)
         local opts = { noremap = true, silent = true, buffer = bufnr }
@@ -79,5 +79,7 @@ return {
         },
       },
     })
+
+    vim.lsp.enable("gopls")
   end
 }

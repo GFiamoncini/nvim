@@ -5,6 +5,12 @@ local keymap = vim.keymap -- for conciseness
 -- Trocar ':' para ';' para entar no modo comando
 keymap.set('n', ';', ':', { noremap = true })
 
+-- Quebra de Linha
+keymap.set({ 'n', 'v' }, '<F3>', ':set wrap!<CR>', { desc = "Ativa Quebra de Linha" })
+
+-- Selecionar resultados de busca
+keymap.set({ 'n', 'v' }, '<leader>hh', ':set hls!<CR>', { desc = "Seleciona resultados de pesquisa" })
+
 -- use jk to exit insert mode
 keymap.set("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
 

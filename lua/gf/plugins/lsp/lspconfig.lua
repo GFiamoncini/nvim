@@ -9,7 +9,7 @@ return {
     "jose-elias-alvarez/null-ls.nvim", -- Adicionando null-ls para linters/formatadores
   },
   config = function()
-    local lspconfig = require("lspconfig")
+    -- local lspconfig deprecated
     local mason_lspconfig = require("mason-lspconfig")
     local cmp_nvim_lsp = require("cmp_nvim_lsp")
     local null_ls = require("null-ls")
