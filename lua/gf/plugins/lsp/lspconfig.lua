@@ -1,101 +1,112 @@
 return {
   "neovim/nvim-lspconfig",
-  event = { "BufReadPre", "BufNewFile" },
+  event        = { "BufReadPre", "BufNewFile" },
   dependencies = {
     "hrsh7th/cmp-nvim-lsp",
-    { "fatih/vim-go", run = ":GoUpdateBinaries" },
-    { "antosha417/nvim-lsp-file-operations", config = true },
-    { "folke/neodev.nvim", opts = {} },
-    "jose-elias-alvarez/null-ls.nvim", -- Adicionando null-ls para linters/formatadores
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
+    {
+      "folke/lazydev.nvim",
+      ft   = "lua",
+      opts = { library = { { path = "${3rd}/luv/library", words = { "vim%.uv" } } } },
+    },
   },
   config = function()
-    -- local lspconfig deprecated
-    local mason_lspconfig = require("mason-lspconfig")
-    local cmp_nvim_lsp = require("cmp_nvim_lsp")
-    local null_ls = require("null-ls")
+    local caps = require("cmp_nvim_lsp").default_capabilities()
 
-    local keymap = vim.keymap -- Para facilitar o uso de atalhos
+    -- ── Diagnósticos ──────────────────────────────────────────────────────
+    local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+    for type, icon in pairs(signs) do
+      vim.fn.sign_define("DiagnosticSign"..type, {
+        text = icon, texthl = "DiagnosticSign"..type, numhl = ""
+      })
+    end
+    vim.diagnostic.config({
+      virtual_text     = { prefix = "●" },
+      update_in_insert = false,
+      severity_sort    = true,
+      float            = { border = "rounded", source = true },
+    })
 
+    -- ── Keymaps ao conectar LSP ────────────────────────────────────────────
     vim.api.nvim_create_autocmd("LspAttach", {
-      group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+      group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
       callback = function(ev)
-        local opts = { buffer = ev.buf, silent = true }
-
-        opts.desc = "Show LSP references"
-        keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts)
-        opts.desc = "Go to declaration"
-        keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-        opts.desc = "Show LSP definitions"
-        keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts)
-        opts.desc = "Show LSP implementations"
-        keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
-        opts.desc = "Show LSP type definitions"
-        keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts)
-        opts.desc = "See available code actions"
-        keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-        opts.desc = "Smart rename"
-        keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-        opts.desc = "Show buffer diagnostics"
-        keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
-        opts.desc = "Show line diagnostics"
-        keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
-        opts.desc = "Go to previous diagnostic"
-        keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-        opts.desc = "Go to next diagnostic"
-        keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-        opts.desc = "Show documentation"
-        keymap.set("n", "K", vim.lsp.buf.hover, opts)
-        opts.desc = "Restart LSP"
-        keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, silent = true, desc = desc })
+        end
+        map("n",        "gR",          "<cmd>Telescope lsp_references<CR>",       "Referências")
+        map("n",        "gD",          vim.lsp.buf.declaration,                   "Declaração")
+        map("n",        "gd",          "<cmd>Telescope lsp_definitions<CR>",      "Definição")
+        map("n",        "gi",          "<cmd>Telescope lsp_implementations<CR>",  "Implementação")
+        map("n",        "gt",          "<cmd>Telescope lsp_type_definitions<CR>", "Tipo")
+        map({"n","v"},  "<leader>ca",  vim.lsp.buf.code_action,                   "Code action")
+        map("n",        "<leader>rn",  vim.lsp.buf.rename,                        "Rename")
+        map("n",        "<leader>D",   "<cmd>Telescope diagnostics bufnr=0<CR>",  "Diagnósticos")
+        map("n",        "<leader>d",   vim.diagnostic.open_float,                 "Diagnóstico float")
+        map("n",        "[d",          vim.diagnostic.goto_prev,                  "Prev diagnóstico")
+        map("n",        "]d",          vim.diagnostic.goto_next,                  "Next diagnóstico")
+        map("i",        "<C-k>",       vim.lsp.buf.signature_help,                "Signature help")
+        map("n",        "<leader>rs",  ":LspRestart<CR>",                         "Restart LSP")
       end,
     })
 
-    -- Configuração para autocompletar funcionar corretamente
-    local capabilities = cmp_nvim_lsp.default_capabilities()
+    -- ── Nova API: vim.lsp.config + vim.lsp.enable (lspconfig v2+) ─────────
 
-    -- Definir ícones de diagnóstico na coluna de sinais (gutter)
-    local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-    for type, icon in pairs(signs) do
-      local hl = "DiagnosticSign" .. type
-      vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-    end
-
-    -- Configurar null-ls para golangci-lint
-    null_ls.setup({
-      sources = {
-        null_ls.builtins.diagnostics.golangci_lint.with({
-          command = "golangci-lint",
-          args = { "run", "--out-format=json" },
-        }),
+    -- Lua
+    vim.lsp.config("lua_ls", {
+      capabilities = caps,
+      settings = {
+        Lua = {
+          completion  = { callSnippet = "Replace" },
+          diagnostics = { globals = { "vim", "Snacks" } },
+          workspace   = { checkThirdParty = false },
+          telemetry   = { enable = false },
+        },
       },
     })
 
-    -- Configuração do LSP via mason-lspconfig
-    mason_lspconfig.setup_handlers({
-      function(server_name)
-        lspconfig[server_name].setup({
-          capabilities = capabilities,
-        })
-      end,
-      -- Configuração específica para gopls
-      ["gopls"] = function()
-        lspconfig.gopls.setup({
-          cmd = { "gopls" },
-          filetypes = { "go", "gomod", "gowork", "gotmpl" },
-          root_dir = lspconfig.util.root_pattern("go.work", "go.mod", ".git"),
-          capabilities = capabilities,
-          single_file_support = true,
-          settings = {
-            gopls = {
-              analyses = {
-                unusedparams = true,
-              },
-              staticcheck = true,
-              gofumpt = true,
-            },
+    -- Go
+    vim.lsp.config("gopls", {
+      capabilities        = caps,
+      cmd                 = { "gopls" },
+      filetypes           = { "go", "gomod", "gowork", "gotmpl" },
+      root_markers        = { "go.work", "go.mod", ".git" },
+      single_file_support = true,
+      settings = {
+        gopls = {
+          analyses           = { unusedparams = true, shadow = true },
+          staticcheck        = true,
+          gofumpt            = true,
+          usePlaceholders    = true,
+          completeUnimported = true,
+          codelenses         = { generate = true, gc_details = true, test = true, tidy = true },
+          hints = {
+            parameterNames         = true,
+            assignVariableTypes    = true,
+            compositeLiteralFields = true,
+            compositeLiteralTypes  = true,
+            constantValues         = true,
+            functionTypeParameters = true,
+            rangeVariableTypes     = true,
           },
-        })
-      end,
+        },
+      },
     })
+
+    -- Markdown
+    vim.lsp.config("marksman", {
+      capabilities = caps,
+      filetypes    = { "markdown", "md", "mdx" },
+    })
+
+    -- Bash
+    vim.lsp.config("bashls", {
+      capabilities = caps,
+      filetypes    = { "sh", "bash", "zsh" },
+    })
+
+    -- Ativa todos os servidores configurados acima
+    vim.lsp.enable({ "lua_ls", "gopls", "marksman", "bashls" })
   end,
 }

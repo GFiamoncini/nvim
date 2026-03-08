@@ -6,21 +6,25 @@ return {
 
     conform.setup({
       formatters_by_ft = {
-        go = { "gofmt" },
+        go       = { "goimports", "gofumpt" },   -- imports + formatação Go
+        lua      = { "stylua" },
+        sh       = { "shfmt" },
+        markdown = { "prettier" },
       },
       format_on_save = {
         lsp_fallback = true,
-        async = false,
-        timeout_ms = 1000,
+        async        = false,
+        timeout_ms   = 1500,
       },
     })
 
-    vim.keymap.set({ "n", "v" }, "<leader>mp", function()
+    -- <leader>mf = format (mf de "make format")
+    vim.keymap.set({ "n", "v" }, "<leader>mf", function()
       conform.format({
         lsp_fallback = true,
-        async = false,
-        timeout_ms = 1000,
+        async        = false,
+        timeout_ms   = 1500,
       })
-    end, { desc = "Format file or range (in visual mode)" })
+    end, { desc = "Formatar arquivo / seleção" })
   end,
 }

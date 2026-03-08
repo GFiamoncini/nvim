@@ -1,50 +1,79 @@
 return {
   "nvim-treesitter/nvim-treesitter",
-  event = { "BufReadPre", "BufNewFile" },
-  build = ":TSUpdate",
+  event      = { "BufReadPre", "BufNewFile" },
+  build      = ":TSUpdate",
   dependencies = {
     "windwp/nvim-ts-autotag",
+    "nvim-treesitter/nvim-treesitter-textobjects",
   },
   config = function()
-    -- import nvim-treesitter plugin
     local treesitter = require("nvim-treesitter.configs")
 
-    -- configure treesitter
-    treesitter.setup({ -- enable syntax highlighting
-      highlight = {
-        enable = true,
-      },
-      -- enable indentation
-      indent = { enable = true },
-      -- enable autotagging (w/ nvim-ts-autotag plugin)
-      autotag = {
-        enable = true,
-      },
-      -- ensure these language parsers are installed
+    treesitter.setup({
+      highlight = { enable = true },
+      indent    = { enable = true },
+
+      autotag = { enable = true },
+
       ensure_installed = {
-        "json",   
-        "yaml",       
-        "prisma",
-        "markdown",
-        "markdown_inline",
+        -- Base
+        "lua", "vim", "vimdoc", "query",
+        -- Go
+        "go", "gomod", "gosum", "gowork", "gotmpl",
+        -- Web
+        "json", "yaml", "toml",
+        "html", "css",
         "svelte",
-        "bash",
-        "lua",
-        "vim",
-        "dockerfile",
-        "gitignore",
-        "query",
-        "vimdoc",
-        "c",
-        "go",
+        -- Markdown
+        "markdown", "markdown_inline",
+        -- Infra
+        "bash", "dockerfile", "gitignore",
+        -- Misc
+        "c", "prisma",
       },
+
       incremental_selection = {
-        enable = true,
+        enable  = true,
         keymaps = {
-          init_selection = "<C-space>",
-          node_incremental = "<C-space>",
+          init_selection    = "<C-space>",
+          node_incremental  = "<C-space>",
           scope_incremental = false,
-          node_decremental = "<bs>",
+          node_decremental  = "<bs>",
+        },
+      },
+
+      -- Text objects (requer nvim-treesitter-textobjects)
+      textobjects = {
+        select = {
+          enable    = true,
+          lookahead = true,
+          keymaps   = {
+            ["af"] = { query = "@function.outer", desc = "ao redor da função" },
+            ["if"] = { query = "@function.inner", desc = "dentro da função" },
+            ["ac"] = { query = "@class.outer",    desc = "ao redor da classe" },
+            ["ic"] = { query = "@class.inner",    desc = "dentro da classe" },
+            ["aa"] = { query = "@parameter.outer", desc = "ao redor do argumento" },
+            ["ia"] = { query = "@parameter.inner", desc = "dentro do argumento" },
+            ["ab"] = { query = "@block.outer",     desc = "ao redor do bloco" },
+            ["ib"] = { query = "@block.inner",     desc = "dentro do bloco" },
+          },
+        },
+        move = {
+          enable              = true,
+          set_jumps           = true,
+          goto_next_start     = {
+            ["]f"] = { query = "@function.outer", desc = "Próxima função" },
+            ["]c"] = { query = "@class.outer",    desc = "Próxima classe" },
+          },
+          goto_previous_start = {
+            ["[f"] = { query = "@function.outer", desc = "Função anterior" },
+            ["[c"] = { query = "@class.outer",    desc = "Classe anterior" },
+          },
+        },
+        swap = {
+          enable               = true,
+          swap_next            = { ["<leader>sn"] = "@parameter.inner" },
+          swap_previous        = { ["<leader>sp"] = "@parameter.inner" },
         },
       },
     })

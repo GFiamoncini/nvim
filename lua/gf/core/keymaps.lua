@@ -1,71 +1,39 @@
--- set leader key to space
+-- ── Leader ────────────────────────────────────────────────────────────────
 vim.g.mapleader = " "
-local keymap = vim.keymap -- for conciseness
+local map = vim.keymap.set
 
--- Trocar ':' para ';' para entar no modo comando
-keymap.set('n', ';', ':', { noremap = true })
+-- ── Modo Comando ──────────────────────────────────────────────────────────
+map("n", ";", ":", { noremap = true, desc = "Entrar no modo comando" })
 
--- Quebra de Linha
-keymap.set({ 'n', 'v' }, '<F3>', ':set wrap!<CR>', { desc = "Ativa Quebra de Linha" })
+-- ── Escape rápido ─────────────────────────────────────────────────────────
+map("i", "jk", "<ESC>", { desc = "Sair do insert com jk" })
 
--- Selecionar resultados de busca
-keymap.set({ 'n', 'v' }, '<leader>hh', ':set hls!<CR>', { desc = "Seleciona resultados de pesquisa" })
+-- ── Busca ─────────────────────────────────────────────────────────────────
+map("n", "<leader>nh", ":nohl<CR>",        { desc = "Limpar highlight de busca" })
+map({ "n", "v" }, "<leader>hh", ":set hls!<CR>", { desc = "Toggle highlight de busca" })
 
--- use jk to exit insert mode
-keymap.set("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
+-- ── Quebra de linha ───────────────────────────────────────────────────────
+map({ "n", "v" }, "<F3>", ":set wrap!<CR>", { desc = "Toggle quebra de linha" })
 
--- clear search highlights
-keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
+-- ── Números ───────────────────────────────────────────────────────────────
+map("n", "<leader>+", "<C-a>", { desc = "Incrementar número" })
+map("n", "<leader>-", "<C-x>", { desc = "Decrementar número" })
 
--- delete single character without copying into register
--- keymap.set("n", "x", '"_x')
+-- ── Janelas (splits) ──────────────────────────────────────────────────────
+map("n", "<leader>sv", "<C-w>v",         { desc = "Split vertical" })
+map("n", "<leader>sh", "<C-w>s",         { desc = "Split horizontal" })
+map("n", "<leader>se", "<C-w>=",         { desc = "Equalizar splits" })
+map("n", "<leader>sx", "<cmd>close<CR>", { desc = "Fechar split atual" })
 
--- increment/decrement numbers
-keymap.set("n", "<leader>+", "<C-a>", { desc = "Increment number" }) -- increment
-keymap.set("n", "<leader>-", "<C-x>", { desc = "Decrement number" }) -- decrement
+-- ── Tabs ──────────────────────────────────────────────────────────────────
+map("n", "<leader>to", "<cmd>tabnew<CR>",    { desc = "Nova tab" })
+map("n", "<leader>tx", "<cmd>tabclose<CR>",  { desc = "Fechar tab" })
+map("n", "<leader>tn", "<cmd>tabn<CR>",      { desc = "Próxima tab" })
+map("n", "<leader>tp", "<cmd>tabp<CR>",      { desc = "Tab anterior" })
+map("n", "<leader>tf", "<cmd>tabnew %<CR>",  { desc = "Buffer atual em nova tab" })
 
--- window management
-keymap.set("n", "<leader>sv", "<C-w>v", { desc = "Split window vertically" })                   -- split window vertically
-keymap.set("n", "<leader>sh", "<C-w>s", { desc = "Split window horizontally" })                 -- split window horizontally
-keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal size" })                    -- make split windows equal width & height
-keymap.set("n", "<leader>sx", "<cmd>close<CR>", { desc = "Close current split" })               -- close current split window
-
-keymap.set("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" })                     -- open new tab
-keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" })              -- close current tab
-keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" })                     --  go to next tab
-keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })                 --  go to previous tab
-keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
-keymap.set("n", "<leader>gg", "<cmd>GoRun<CR>", { desc = "Go Run" })
-
--- use jk to exit insert mode
-keymap.set("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
-
--- clear search highlights
-keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
-
--- delete single character without copying into register
--- keymap.set("n", "x", '"_x')
-
--- increment/decrement numbers
-keymap.set("n", "<leader>+", "<C-a>", { desc = "Increment number" }) -- increment
-keymap.set("n", "<leader>-", "<C-x>", { desc = "Decrement number" }) -- decrement
-
--- window management
-keymap.set("n", "<leader>sv", "<C-w>v", { desc = "Split window vertically" })                   -- split window vertically
-keymap.set("n", "<leader>sh", "<C-w>s", { desc = "Split window horizontally" })                 -- split window horizontally
-keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal size" })                    -- make split windows equal width & height
-keymap.set("n", "<leader>sx", "<cmd>close<CR>", { desc = "Close current split" })               -- close current split window
-
-keymap.set("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" })                     -- open new tab
-keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" })              -- close current tab
-keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" })                     --  go to next tab
-keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })                 --  go to previous tab
-keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
-keymap.set("n", "<leader>gg", "<cmd>GoRun<CR>", { desc = "Go Run" })
-
--- Folding
-keymap.set("n", "<leader>fo", "zR", { desc = "Open all folds" })            -- Open all folds
-keymap.set("n", "<leader>fc", "zM", { desc = "Close all folds" })           -- Close all folds
-keymap.set("n", "<leader>fa", "za", { desc = "Toggle fold" })               -- Toggle fold under cursor
-keymap.set("n", "<leader>fz", "zm", { desc = "Fold less (increase fold)" }) -- Increase fold depth
-keymap.set("n", "<leader>fZ", "zr", { desc = "Fold more (reduce fold)" })   -- Decrease fold depth
+-- ── Folding (complementa os do nvim-ufo em folding.lua) ───────────────────
+-- zR / zM / zr / zm são mapeados pelo nvim-ufo
+map("n", "<leader>fo", "zR", { desc = "Abrir todos os folds" })
+map("n", "<leader>fc", "zM", { desc = "Fechar todos os folds" })
+map("n", "<leader>fa", "za", { desc = "Toggle fold sob cursor" })
